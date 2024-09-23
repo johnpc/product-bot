@@ -1,0 +1,12 @@
+.husky
+.amplify/
+.gitignore
+.prettierignore
+.eslintcache
+*.svg
+*.webp
+*.png
+amplify_outputs.json
+*.tsbuildinfo
+dist/
+*.csv
