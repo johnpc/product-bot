@@ -2,6 +2,10 @@ import { generateClient } from "aws-amplify/data";
 import { createAIHooks, AIConversation } from "@aws-amplify/ui-react-ai";
 import type { Schema } from "../amplify/data/resource";
 import { Card, Loader, ScrollView, Text, View } from "@aws-amplify/ui-react";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import remarkGfm from "remark-gfm";
+
 const client = generateClient<Schema>();
 const { useAIConversation } = createAIHooks(client);
 
@@ -13,16 +17,12 @@ function ChatComponent() {
       isLoading,
     },
     sendMessage,
-  ] = useAIConversation("chat", {
-    onResponse: (response) => {
-      console.log({ method: "onResponse", response });
-    },
-  });
+  ] = useAIConversation("chat");
   console.log({ hasError });
 
   messages.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
   return (
-    <Card variation="elevated">
+    <Card>
       <View
         paddingLeft={"large"}
         paddingRight={"large"}
@@ -43,12 +43,22 @@ function ChatComponent() {
       >
         <AIConversation
           messages={messages}
+          allowAttachments
           handleSendMessage={(content) =>
             sendMessage({
               ...content,
               aiContext: { ignoreThisArgument: "true" },
             })
           }
+          messageRenderer={{
+            text: (input: {text: string}) => {
+              return (
+                <ReactMarkdown rehypePlugins={[rehypeHighlight, remarkGfm]}>
+                  {input.text}
+                </ReactMarkdown>
+              );
+            },
+          }}
           variant="bubble"
           avatars={{
             user: {
